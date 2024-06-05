@@ -13,7 +13,7 @@
     "drizzle:generate": "drizzle-kit generate",
     "drizzle:migrate": "drizzle-kit migrate",
     "bunbuild": "bun -b run build",
-    "pm2deploy": "pm2 --interpreter ~/.bun/bin/bun --name docsystem --time build/index.js"
+    "pm2deploy": "pm2 start --interpreter ~/.bun/bin/bun --name docsystem --time build/index.js"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.0.0",
