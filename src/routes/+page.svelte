@@ -20,7 +20,8 @@
 				docResponse = await fetch(`/api/v0/doc?id=${id}&password=${password}`);
 			}
 			if (docResponse.status == 403) {
-				error_str = 'Password protected document!';
+                error_str = (error_str !== 'Password protected document!' && error_str !== 'Wrong password') ? 'Password protected document!' : error_str = 'Wrong password';
+                console.log(error_str);
 				showPasswordPrompt = true;
                 password = true;
 				return;
