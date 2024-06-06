@@ -1,13 +1,12 @@
 <script lang="ts">
 	import SvelteMarkdown from 'svelte-markdown';
 	import { fade, scale, slide } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
 	let showPasswordPrompt: boolean = false;
 	let id_value: string = '';
 	let form_submitted: boolean;
 	let password_value: string | any;
 	let doc_content: string;
-	let error_str: string;
+	let error_str: string | undefined;
 	let showDocContent: boolean = false;
 
 	async function fetchDocFromId(id: string, password: string | any) {
@@ -37,6 +36,7 @@
 				let docJson = await docResponse.json();
 				doc_content = docJson.content;
 				showDocContent = true;
+                showPasswordPrompt = false;
 			}
 		} catch (error: Error | any) {
 			console.log('Hello');
@@ -61,24 +61,24 @@
 </svelte:head>
 
 <!--Here's the prompt container!-->
-{#if !showDocContent}
-	<div class="container" transition:slide>
-		<div id="promptContainer">
+{#if showDocContent == false}
+	<div class="container">
+		<div id="promptContainer" transition:slide={{ delay: 250, duration: 1000}}>
 			<form on:submit={submitInput}>
 				<!--svelte-ignore a11y-label-has-associated-control-->
 				<label>Welcome to the docs archive! <br />Enter your provided 10-character ID</label>
 				<hr />
-				<input placeholder="Enter your ID" bind:value={id_value} />
+				<input placeholder="Enter your ID" bind:value={id_value} transition:slide />
 				{#if showPasswordPrompt}
 					<input
 						id="passwordInput"
-						transition:fade
+						transition:slide
 						placeholder="Document password"
 						bind:value={password_value}
 					/>
 				{/if}
 				<!--svelte-ignore a11y-label-has-associated-control-->
-				{#if error_str !== undefined}
+				{#if error_str !== undefined && showDocContent == false}
 					<br />
 					<label transition:fade>{error_str}</label>
 				{/if}
@@ -89,8 +89,8 @@
 {/if}
 
 {#if showDocContent}
-	<div class="container" transition:slide>
-		<div id="docContainer">
+	<div class="container">
+		<div id="docContainer" transition:slide={{delay: 1300, duration: 500}}>
             <SvelteMarkdown source={doc_content}/>
 		</div>
 	</div>
@@ -110,7 +110,6 @@
 		height: 15%;
 		margin: auto;
 		top: 100%;
-		display: flex;
 		flex-direction: column;
 		font-size: 1em;
 		text-align: center;
@@ -165,4 +164,18 @@
 		height: 100%;
 		overflow: hidden;
 	}
+
+    /**Mobile CSS Design*/
+    @media (max-width: 600px) {
+        #promptContainer {
+            flex: 1;
+            max-width: 90;
+            margin: 10px;
+        }
+        #docContainer {
+            flex: 1;
+            max-width: 90;
+            margin: 10px;
+        }
+    }
 </style>
