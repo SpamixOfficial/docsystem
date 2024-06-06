@@ -58,6 +58,7 @@
 
 <svelte:head>
 	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght" rel="stylesheet" />
+    <link rel="icon" type="image/svg" href="/key-white-solid.png" />
 </svelte:head>
 
 <!--Here's the prompt container!-->
