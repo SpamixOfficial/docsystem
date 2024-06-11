@@ -19,7 +19,7 @@ export async function GET({ request, url }) {
         status: 200
     })
     } catch (error: Error | any) {
-		console.log(error);
+		console.log(`!¡!¡ Server ran into an error:\n${error}`);
 		switch (error.message) {
 			case 'Authentication failed':
 				return json(

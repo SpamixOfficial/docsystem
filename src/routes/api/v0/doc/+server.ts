@@ -41,6 +41,7 @@ export async function GET({ request, url }) {
 				}
 			);
 	} catch (error: Error | any) {
+        console.log(`!¡!¡ Server ran into an error:\n${error}`);
 		switch (error.message) {
 			case 'No id specified':
 				return json(
@@ -119,7 +120,7 @@ export async function POST({ request }) {
             id: new_id
         }, { status: 200 });
 	} catch (error: Error | any) {
-		console.log(error);
+        console.log(`!¡!¡ Server ran into an error:\n${error}`);
 		switch (error.message) {
 			case 'Malformed body':
 			case 'No password provided':

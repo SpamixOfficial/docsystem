@@ -12,7 +12,6 @@
 	async function fetchDocFromId(id: string, password: string | any) {
 		try {
 			let docResponse: any;
-			let docJson: any;
 			if (!password) {
 				docResponse = await fetch(`/api/v0/doc?id=${id}`);
 			} else {
@@ -20,7 +19,7 @@
 			}
 			if (docResponse.status == 403) {
                 error_str = (error_str !== 'Password protected document!' && error_str !== 'Wrong password') ? 'Password protected document!' : error_str = 'Wrong password';
-                console.log(error_str);
+                console.log(`Uh oh! The api returned an error: \n\tError: ${error_str}\n\tCode: ${docResponse.status}\n\n(I have a feeling you know what you're doing if youre taking a look here, thats why I include this funny message! Cheers :-D)`);
 				showPasswordPrompt = true;
                 password = true;
 				return;
@@ -39,7 +38,6 @@
                 showPasswordPrompt = false;
 			}
 		} catch (error: Error | any) {
-			console.log('Hello');
 			if (error instanceof Error) {
 				switch (error.message) {
 					case 'Password Needed':
