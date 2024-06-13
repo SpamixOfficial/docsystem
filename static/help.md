@@ -7,6 +7,8 @@ Once you've filled out your your provided credentials, you click on the return b
 
 <img src="where-to-click-goddamnit.png" width=200/>
 
+Alternatively, click on the submit button :-)
+
 ---
 
 ## What is this site?

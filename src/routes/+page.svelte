@@ -1,7 +1,7 @@
 <script lang="ts">
 	import SvelteMarkdown from 'svelte-markdown';
 	import { fade, slide } from 'svelte/transition';
-    import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	let showPasswordPrompt: boolean = false;
 	const version = __VERSION__;
@@ -10,8 +10,8 @@
 	let doc_content: string;
 	let error_str: string | undefined;
 	let showDocContent: boolean = false;
-    let showHelpBox: boolean = false;
-    let helpContent: string;
+	let showHelpBox: boolean = false;
+	let helpContent: string;
 
 	async function fetchDocFromId(id: string, password: string | any) {
 		try {
@@ -58,14 +58,18 @@
 	}
 
 	async function submitInput() {
+		if (id_value == '' || id_value === undefined) {
+			error_str = 'Malformed input, ID is possibly missing';
+			return;
+		}
 		let response = await fetchDocFromId(id_value, password_value);
 		return response;
 	}
 
-    onMount(async () => {
-        helpContent = await (await fetch("/help.md")).text()
-        console.log("hey");
-    })
+	onMount(async () => {
+		helpContent = await (await fetch('/help.md')).text();
+		console.log('hey');
+	});
 </script>
 
 <svelte:head>
@@ -77,8 +81,12 @@
 {#if showDocContent == false}
 	<div class="container">
 		<div id="promptContainer" transition:slide={{ delay: 250, duration: 1000 }}>
-			<button class="genericButton" id="helpButton" on:click={() => {showHelpBox = !showHelpBox; console.log(helpContent)}}
-				><Icon icon="material-symbols:help-outline" /></button
+			<button
+				class="helpButton"
+				on:click={() => {
+					showHelpBox = !showHelpBox;
+					console.log(helpContent);
+				}}><Icon icon="material-symbols:help-outline" /></button
 			>
 			<!--Help button-->
 			<form on:submit={submitInput}>
@@ -94,6 +102,8 @@
 						bind:value={password_value}
 					/>
 				{/if}
+				<br />
+				<button class="submitButton">Submit</button>
 				<!--svelte-ignore a11y-label-has-associated-control-->
 				{#if error_str !== undefined && showDocContent == false}
 					<br />
@@ -101,11 +111,11 @@
 				{/if}
 				<input type="submit" value="submit" />
 			</form>
-            {#if showHelpBox && showDocContent == false}
-                <div transition:slide={{ delay: 600, duration: 600 }}>
-                    <SvelteMarkdown source={helpContent} />
-                </div>
-            {/if}
+			{#if showHelpBox && showDocContent == false}
+				<div transition:slide={{ delay: 600, duration: 600 }}>
+					<SvelteMarkdown source={helpContent} />
+				</div>
+			{/if}
 		</div>
 	</div>
 {/if}
@@ -119,38 +129,50 @@
 {/if}
 
 <div class="infoText">
-    <p style="all: unset;">This server is running Docsystem v{version}</p>
+	<p style="all: unset;">This server is running Docsystem v{version}</p>
 </div>
+
 <style>
 	input[type='submit'] {
 		display: none;
 	}
 
-	.genericButton {
+	.helpButton {
 		all: unset;
 		position: absolute;
 		right: 10px;
 		top: 5px;
+		font-size: 20px;
+		width: 20px;
+		height: 20px;
 		transition: 0.33s;
-        width: 20px;
-        height: 20px;
-        font-size: 20px;
+	}
+	.helpButton:hover {
+		opacity: 0.4;
 	}
 
-	.genericButton:hover {
-		opacity: 0.5;
+	.submitButton {
+		margin: 5px;
+		box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+		border-radius: 5%;
+		border: 2px solid rgba(0, 0, 0, 0.24);
+		font-family: 'Roboto Mono', monospace;
+		transition: 0.33s;
+	}
+	.submitButton:hover {
+		opacity: 0.8;
 	}
 
-    .infoText {
-        position: fixed;
-        bottom: 0;
-        font-family: 'Roboto Mono', monospace;
-        font-size: 0.8em;
-        background-color: rgb(235, 232, 210);
-        width: 100%;
-        height: 15px;
-        margin: 0;
-    }
+	.infoText {
+		position: fixed;
+		bottom: 0;
+		font-family: 'Roboto Mono', monospace;
+		font-size: 0.8em;
+		background-color: rgb(235, 232, 210);
+		width: 100%;
+		height: 15px;
+		margin: 0;
+	}
 
 	#promptContainer {
 		box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
@@ -158,7 +180,7 @@
 		border: 2px solid rgba(0, 0, 0, 0.24);
 		width: 20%;
 		font-family: 'Roboto Mono', monospace;
-		max-height: calc(100vh - 200px);;
+		max-height: calc(100vh - 200px);
 		height: 15%;
 		margin: auto;
 		top: 100%;
@@ -168,7 +190,7 @@
 		padding: 10px;
 		background-color: rgb(235, 232, 210);
 		position: relative;
-        overflow-y: auto;
+		overflow-y: auto;
 	}
 
 	#docContainer {
@@ -233,7 +255,7 @@
 		}
 	}
 
-    @media (max-width: 1080px) {
+	@media (max-width: 1080px) {
 		#promptContainer {
 			flex: 1;
 			max-width: 100;
