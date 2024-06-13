@@ -1,11 +1,11 @@
 {
   "name": "spamix-docsystem",
-  "version": "0.0.1",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "bunx --bun vite",
+    "build": "bunx --bun vite build",
+    "preview": "bunx --bun vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "prettier --check .",
@@ -33,6 +33,7 @@
   "type": "module",
   "dependencies": {
     "@0x57/ulid": "^0.0.0",
+    "@iconify/svelte": "^4.0.2",
     "drizzle-orm": "^0.31.1",
     "mysql2": "^3.10.0",
     "svelte-markdown": "^0.4.1"

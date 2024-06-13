@@ -1,13 +1,17 @@
 <script lang="ts">
 	import SvelteMarkdown from 'svelte-markdown';
-	import { fade, scale, slide } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
+    import { onMount } from 'svelte';
+	import Icon from '@iconify/svelte';
 	let showPasswordPrompt: boolean = false;
+	const version = __VERSION__;
 	let id_value: string = '';
-	let form_submitted: boolean;
 	let password_value: string | any;
 	let doc_content: string;
 	let error_str: string | undefined;
 	let showDocContent: boolean = false;
+    let showHelpBox: boolean = false;
+    let helpContent: string;
 
 	async function fetchDocFromId(id: string, password: string | any) {
 		try {
@@ -18,16 +22,21 @@
 				docResponse = await fetch(`/api/v0/doc?id=${id}&password=${password}`);
 			}
 			if (docResponse.status == 403) {
-                error_str = (error_str !== 'Password protected document!' && error_str !== 'Wrong password') ? 'Password protected document!' : error_str = 'Wrong password';
-                console.log(`Uh oh! The api returned an error: \n\tError: ${error_str}\n\tCode: ${docResponse.status}\n\n(I have a feeling you know what you're doing if youre taking a look here, thats why I include this funny message! Cheers :-D)`);
+				error_str =
+					error_str !== 'Password protected document!' && error_str !== 'Wrong password'
+						? 'Password protected document!'
+						: (error_str = 'Wrong password');
+				console.log(
+					`Uh oh! The api returned an error: \n\tError: ${error_str}\n\tCode: ${docResponse.status}\n\n(I have a feeling you know what you're doing if youre taking a look here, thats why I include this funny message! Cheers :-D)`
+				);
 				showPasswordPrompt = true;
-                password = true;
+				password = true;
 				return;
 			}
-            if (docResponse.status == 404) {
-                error_str = "This document doesnt exist!";
-                return;
-            }
+			if (docResponse.status == 404) {
+				error_str = 'This document doesnt exist!';
+				return;
+			}
 			if (docResponse.status != 200) {
 				error_str = 'Unknown error occurred';
 				return;
@@ -35,7 +44,7 @@
 				let docJson = await docResponse.json();
 				doc_content = docJson.content;
 				showDocContent = true;
-                showPasswordPrompt = false;
+				showPasswordPrompt = false;
 			}
 		} catch (error: Error | any) {
 			if (error instanceof Error) {
@@ -52,17 +61,26 @@
 		let response = await fetchDocFromId(id_value, password_value);
 		return response;
 	}
+
+    onMount(async () => {
+        helpContent = await (await fetch("/help.md")).text()
+        console.log("hey");
+    })
 </script>
 
 <svelte:head>
 	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght" rel="stylesheet" />
-    <link rel="icon" type="image/svg" href="/key-white-solid.png" />
+	<link rel="icon" type="image/svg" href="/key-white-solid.png" />
 </svelte:head>
 
 <!--Here's the prompt container!-->
 {#if showDocContent == false}
 	<div class="container">
-		<div id="promptContainer" transition:slide={{ delay: 250, duration: 1000}}>
+		<div id="promptContainer" transition:slide={{ delay: 250, duration: 1000 }}>
+			<button class="genericButton" id="helpButton" on:click={() => {showHelpBox = !showHelpBox; console.log(helpContent)}}
+				><Icon icon="material-symbols:help-outline" /></button
+			>
+			<!--Help button-->
 			<form on:submit={submitInput}>
 				<!--svelte-ignore a11y-label-has-associated-control-->
 				<label>Welcome to the docs archive! <br />Enter your provided 10-character ID</label>
@@ -81,31 +99,66 @@
 					<br />
 					<label transition:fade>{error_str}</label>
 				{/if}
-                <input type="submit" value="submit" />
+				<input type="submit" value="submit" />
 			</form>
+            {#if showHelpBox && showDocContent == false}
+                <div transition:slide={{ delay: 600, duration: 600 }}>
+                    <SvelteMarkdown source={helpContent} />
+                </div>
+            {/if}
 		</div>
 	</div>
 {/if}
 
 {#if showDocContent}
 	<div class="container">
-		<div id="docContainer" transition:slide={{delay: 1300, duration: 500}}>
-            <SvelteMarkdown source={doc_content}/>
+		<div id="docContainer" transition:slide={{ delay: 1300, duration: 500 }}>
+			<SvelteMarkdown source={doc_content} />
 		</div>
 	</div>
 {/if}
 
+<div class="infoText">
+    <p style="all: unset;">This server is running Docsystem v{version}</p>
+</div>
 <style>
-    input[type="submit"] {
-        display: none;
+	input[type='submit'] {
+		display: none;
+	}
+
+	.genericButton {
+		all: unset;
+		position: absolute;
+		right: 10px;
+		top: 5px;
+		transition: 0.33s;
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+	}
+
+	.genericButton:hover {
+		opacity: 0.5;
+	}
+
+    .infoText {
+        position: fixed;
+        bottom: 0;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 0.8em;
+        background-color: rgb(235, 232, 210);
+        width: 100%;
+        height: 15px;
+        margin: 0;
     }
+
 	#promptContainer {
 		box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 		border-radius: 3%;
 		border: 2px solid rgba(0, 0, 0, 0.24);
 		width: 20%;
 		font-family: 'Roboto Mono', monospace;
-		max-height: 20%;
+		max-height: calc(100vh - 200px);;
 		height: 15%;
 		margin: auto;
 		top: 100%;
@@ -114,9 +167,11 @@
 		text-align: center;
 		padding: 10px;
 		background-color: rgb(235, 232, 210);
+		position: relative;
+        overflow-y: auto;
 	}
 
-    #docContainer {
+	#docContainer {
 		box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 		border-radius: 3%;
 		border: 2px solid rgba(0, 0, 0, 0.24);
@@ -164,17 +219,30 @@
 		overflow: hidden;
 	}
 
-    /**Mobile CSS Design*/
-    @media (max-width: 600px) {
-        #promptContainer {
-            flex: 1;
-            max-width: 90;
-            margin: 10px;
-        }
-        #docContainer {
-            flex: 1;
-            max-width: 90;
-            margin: 10px;
-        }
-    }
+	/**Mobile CSS Design*/
+	@media (max-width: 600px) {
+		#promptContainer {
+			flex: 1;
+			max-width: 90;
+			margin: 10px;
+		}
+		#docContainer {
+			flex: 1;
+			max-width: 90;
+			margin: 10px;
+		}
+	}
+
+    @media (max-width: 1080px) {
+		#promptContainer {
+			flex: 1;
+			max-width: 100;
+			margin: 10px;
+		}
+		#docContainer {
+			flex: 1;
+			max-width: 100;
+			margin: 10px;
+		}
+	}
 </style>
